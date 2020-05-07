@@ -64,6 +64,7 @@ class CommandCopy(Command):
                 for _ in range(wb_size):
                     block: bytes = block_reader.get_block_by_height(height)
                     if block is None:
+                        height = end
                         break
 
                     self._copy_block(wb, block_reader, block, height)
