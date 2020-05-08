@@ -56,7 +56,7 @@ class CommandCopy(Command):
 
         last_block: Optional[bytes] = None
         height = start
-        wb_size = 10000
+        wb_size = 1000
 
         while height < end:
             with new_db.write_batch() as wb:
@@ -67,13 +67,14 @@ class CommandCopy(Command):
                         height = end
                         break
 
+                    # Copy a block data from source db to target db
                     self._copy_block(wb, block_reader, block, height)
 
                     height += 1
                     last_block = block
 
             # Display copy progress status
-            print(".", end="")
+            print(".", end="", flush=True)
 
         if last_block:
             with new_db.write_batch() as wb:
