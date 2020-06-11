@@ -235,6 +235,8 @@ class IconServiceSyncer(object):
 
         end_height = start_height + count - 1
 
+        elapsed_invoke_time: float = 0
+
         for height in range(start_height, start_height + count):
             block_dict: dict = self._block_reader.get_block_by_block_height(height)
 
@@ -259,8 +261,12 @@ class IconServiceSyncer(object):
             if prev_block is not None and prev_block.hash != block.prev_hash:
                 raise Exception()
 
+            start_time = time.perf_counter()
             invoke_result = self._engine.invoke(block, tx_requests,
                                                 prev_block_generator, prev_block_validators, prev_block_votes)
+            end_time = time.perf_counter()
+            elapsed_invoke_time = elapsed_invoke_time + (end_time - start_time)
+
             tx_results, state_root_hash = invoke_result[0], invoke_result[1]
             main_preps_as_dict: Optional[Dict] = invoke_result[3]
 
@@ -321,6 +327,7 @@ class IconServiceSyncer(object):
         self._block_reader.close()
         word_detector.stop()
 
+        print(f'elapsedInvokeTime: {elapsed_invoke_time} seconds')
         Logger.debug(tag=self._TAG, msg=f"_run() end: {ret}")
         return ret
 
