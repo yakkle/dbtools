@@ -19,6 +19,7 @@ import logging
 import os
 import shutil
 import time
+from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import TYPE_CHECKING, Optional, List, Tuple, Dict
 
@@ -235,11 +236,19 @@ class IconServiceSyncer(object):
 
         end_height = start_height + count - 1
 
-        elapsed_invoke_time: float = 0
+        block_data: OrderedDict = OrderedDict()
 
+        read_start_time = time.perf_counter()
         for height in range(start_height, start_height + count):
             block_dict: dict = self._block_reader.get_block_by_block_height(height)
+            block_data[height] = block_dict
 
+        read_end_time = time.perf_counter()
+        print(f'elapsedReadTime: {read_end_time - read_start_time} seconds')
+
+        elapsed_invoke_time: float = 0
+        total_start_time = time.perf_counter()
+        for height, block_dict in block_data.items():
             if block_dict is None:
                 print(f'last block: {height - 1}')
                 break
@@ -327,7 +336,11 @@ class IconServiceSyncer(object):
         self._block_reader.close()
         word_detector.stop()
 
+        total_end_time = time.perf_counter()
+        elapsed_total_time = total_end_time - total_start_time
+
         print(f'elapsedInvokeTime: {elapsed_invoke_time} seconds')
+        print(f'elapsedTotalTime: {elapsed_total_time} seconds')
         Logger.debug(tag=self._TAG, msg=f"_run() end: {ret}")
         return ret
 

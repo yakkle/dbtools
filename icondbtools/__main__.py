@@ -59,6 +59,7 @@ def main():
         CommandBalance
     ]
 
+    print(f"python version : {sys.version}")
     version = get_dbtools_version()
     parser = argparse.ArgumentParser(prog='icondbtools', description=f'icon db tools v{version}')
 
